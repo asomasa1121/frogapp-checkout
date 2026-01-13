@@ -3,40 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
+    <title>Checkout Debug</title>
     <!-- Paddle Sandbox Script -->
     <script src="https://sandbox-cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+    <h1>Processing Payment...</h1>
+    <div id="status" style="padding: 20px; border: 1px solid #ccc; margin: 20px auto; max-width: 600px; text-align: left;">
+        Initializing...
+    </div>
+
     <script>
-        // Wait for page load
+        var statusDiv = document.getElementById("status");
+        
+        function log(msg) {
+            statusDiv.innerHTML += "<br>" + msg;
+            console.log(msg);
+        }
+
+        window.onerror = function(message, source, lineno, colno, error) {
+            log("Global Error: " + message);
+        };
+
         window.onload = function() {
-            // Initialize Paddle Sandbox
-            Paddle.Initialize({ 
-                token: "test_3d7966c6a195ef6b87bede70f51", 
-                environment: "sandbox"
-            });
+            log("Page loaded.");
+            
+            if (typeof Paddle === 'undefined') {
+                log("CRITICAL ERROR: Paddle script not found. Check internet or URL.");
+                return;
+            }
+            log("Paddle script detected.");
+
+            try {
+                Paddle.Initialize({ 
+                    token: "test_3d7966c6a195ef6b87bede70f51", 
+                    environment: "sandbox"
+                });
+                log("Paddle Initialized.");
+            } catch (e) {
+                log("Init Error: " + e.message);
+            }
 
             // Get Transaction ID
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             const txnId = urlParams.get('_ptxn');
             
-            // Debug display
-            var statusDiv = document.getElementById("status");
-            statusDiv.innerHTML = "Transaction ID found: " + (txnId ? txnId : "None");
+            log("Transaction ID: " + (txnId ? txnId : "None"));
 
             if (txnId) {
-                // Open Checkout
-                Paddle.Checkout.open({
-                    transactionId: txnId
-                });
+                log("Attempting to open checkout...");
+                try {
+                    Paddle.Checkout.open({
+                        transactionId: txnId
+                    });
+                    log("Checkout Verify: Open command sent.");
+                } catch (e) {
+                    log("Checkout Error: " + e.message);
+                }
             } else {
-                statusDiv.innerHTML = "Error: No Transaction ID found in URL.";
+                log("Waiting for Transaction ID...");
             }
         };
     </script>
-</head>
-<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-    <h1>Processing Payment...</h1>
-    <div id="status">Loading...</div>
 </body>
 </html>
