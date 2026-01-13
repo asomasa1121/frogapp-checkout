@@ -11,12 +11,19 @@
     <div id="status">Loading...</div>
 
     <script>
-        // Use simplified initialization for Sandbox
-        Paddle.Environment.set('sandbox'); // Set environment EXPLICITLY before init
-        
+        Paddle.Environment.set('sandbox'); 
         Paddle.Initialize({ 
-            token: "test_3d7966c6a195ef6b87bede70f51" 
-            // Removed 'environment' parameter from here as it caused the error
+            token: "test_3d7966c6a195ef6b87bede70f51",
+            eventCallback: function(data) {
+                // Listen for checkout completion
+                if (data.name === "checkout.completed") {
+                    var txnId = data.data.transaction_id;
+                    document.getElementById("status").innerText = "Success! Returning to app...";
+                    
+                    // DEEP LINK to app
+                    window.location.href = "frogapp://license-callback?txn=" + txnId;
+                }
+            }
         });
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -28,7 +35,8 @@
                 transactionId: txnId
             });
         } else {
-            document.getElementById("status").innerText = "Error: No Transaction ID found.";
+             // If no ID, maybe show a close button or generic msg
+            document.getElementById("status").innerText = "Waiting for transaction...";
         }
     </script>
 </body>
