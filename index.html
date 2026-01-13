@@ -1,20 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
+    <!-- Paddle Sandbox Script -->
     <script src="https://sandbox-cdn.paddle.com/paddle/v2/paddle.js"></script>
-</head>
-<body>
-    <h1>Processing Payment...</h1>
     <script>
-        Paddle.Initialize({ 
-            token: "test_3d7966c6a195ef6b87bede70f51", 
-            environment: "sandbox"
-        });
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("_ptxn")) {
-            Paddle.Checkout.open({ transactionId: params.get("_ptxn") });
-        }
+        // Wait for page load
+        window.onload = function() {
+            // Initialize Paddle Sandbox
+            Paddle.Initialize({ 
+                token: "test_3d7966c6a195ef6b87bede70f51", 
+                environment: "sandbox"
+            });
+
+            // Get Transaction ID
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const txnId = urlParams.get('_ptxn');
+            
+            // Debug display
+            var statusDiv = document.getElementById("status");
+            statusDiv.innerHTML = "Transaction ID found: " + (txnId ? txnId : "None");
+
+            if (txnId) {
+                // Open Checkout
+                Paddle.Checkout.open({
+                    transactionId: txnId
+                });
+            } else {
+                statusDiv.innerHTML = "Error: No Transaction ID found in URL.";
+            }
+        };
     </script>
+</head>
+<body style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+    <h1>Processing Payment...</h1>
+    <div id="status">Loading...</div>
 </body>
 </html>
