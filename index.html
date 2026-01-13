@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout</title>
+    <script src="https://sandbox-cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+<body>
+    <h1>Processing Payment...</h1>
+    <script>
+        Paddle.Initialize({ 
+            token: "test_3d7966c6a195ef6b87bede70f51", 
+            environment: "sandbox"
+        });
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("_ptxn")) {
+            Paddle.Checkout.open({ transactionId: params.get("_ptxn") });
+        }
+    </script>
+</body>
+</html>
